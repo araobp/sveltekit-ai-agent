@@ -31,105 +31,25 @@
   }
 </script>
 
-<style>
-  .chat-container {
-    display: flex;
-    flex-direction: column;
-    flex-grow: 1; /* Allow it to grow and shrink */
-    width: 50%;
-    margin: 0 auto;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    overflow: hidden;
-  }
-
-  .main-content-wrapper {
-    display: flex;
-    flex-direction: column;
-    height: 100vh; /* Take full viewport height */
-    padding: 10px; /* Add some padding around the content */
-    box-sizing: border-box; /* Include padding in height calculation */
-  }
-
-  .messages {
-    flex-grow: 1;
-    padding: 10px;
-    overflow-y: auto;
-    background-color: #f9f9f9;
-  }
-
-  .message {
-    margin-bottom: 10px;
-    padding: 8px 12px;
-    border-radius: 15px;
-    max-width: 80%;
-  }
-
-  .message.user {
-    background-color: #007bff;
-    color: white;
-    align-self: flex-end;
-    margin-left: auto;
-  }
-
-  .message.ai {
-    background-color: #e2e2e2;
-    color: #333;
-    align-self: flex-start;
-    margin-right: auto;
-  }
-
-  .input-area {
-    display: flex;
-    padding: 10px;
-    border-top: 1px solid #eee;
-    background-color: #fff;
-  }
-
-  .input-area input {
-    flex-grow: 1;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 20px;
-    margin-right: 10px;
-    font-size: 16px;
-  }
-
-  .input-area button {
-    background-color: #28a745;
-    color: white;
-    border: none;
-    border-radius: 20px;
-    padding: 10px 20px;
-    cursor: pointer;
-    font-size: 16px;
-  }
-
-  .input-area button:hover {
-    background-color: #218838;
-  }
-
-  h1 {
-    text-align: center;
-  }
-</style>
-
-<div class="main-content-wrapper">
-  <h1>AI Agent</h1>
-  <div class="chat-container">
-    <div class="messages">
+<div class="d-flex flex-column vh-100 p-3">
+  <h1 class="text-center mb-3">AI Agent</h1>
+  <div class="card flex-grow-1 mx-auto" style="width: 50%;">
+    <div class="card-body d-flex flex-column overflow-auto">
       {#each messages as msg}
-        <div class="message {msg.sender}">{msg.text}</div>
+        <div class="p-2 mb-2 rounded-3 text-break" class:bg-primary={msg.sender === 'user'} class:text-white={msg.sender === 'user'} class:bg-light={msg.sender === 'ai'} class:ms-auto={msg.sender === 'user'} class:me-auto={msg.sender === 'ai'} style="max-width: 80%;">
+          {msg.text}
+        </div>
       {/each}
     </div>
-    <div class="input-area">
+    <div class="card-footer d-flex p-3">
       <input
         type="text"
+        class="form-control me-2"
         placeholder="Type your message..."
         bind:value={message}
         on:keydown={(e) => { if (e.key === 'Enter') sendMessage(); }}
       />
-      <button on:click={sendMessage}>Send</button>
+      <button class="btn btn-success" on:click={sendMessage}>Send</button>
     </div>
   </div>
 </div>
