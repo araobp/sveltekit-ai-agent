@@ -23,6 +23,7 @@
     },
     "type": "module",
     "dependencies": {
-        "bootstrap": "^5.3.7"
+        "bootstrap": "^5.3.7",
+        "marked": "^16.0.0"
     }
 }

@@ -1,10 +1,17 @@
 <script>
   import { tick } from 'svelte';
+  import { marked } from 'marked';
 
   var message = '';
   var messages = [];
   var chatContainer; // Declare a variable to hold the chat container element
   var isThinking = false; // New state variable for thinking indicator
+  var messageInput; // Declare a variable to hold the message input element
+
+  // Function to render markdown
+  function renderMarkdown(text) {
+    return marked.parse(text);
+  }
 
   async function sendMessage() {
     if (message.trim()) {
@@ -44,6 +51,9 @@
           chatContainer.scrollTop = chatContainer.scrollHeight;
           console.log('AI message added. ScrollTop:', chatContainer.scrollTop, 'ScrollHeight:', chatContainer.scrollHeight);
         }
+        if (messageInput) {
+          messageInput.focus();
+        }
       }
     }
   }
@@ -56,7 +66,11 @@
       <div class="flex-grow-1 overflow-auto flex-shrink-1" style="height: 0;" bind:this={chatContainer}>
         {#each messages as msg}
           <div class="p-2 mb-2 rounded-3 text-break" class:bg-primary={msg.sender === 'user'} class:text-white={msg.sender === 'user'} class:bg-light={msg.sender === 'ai'} class:ms-auto={msg.sender === 'user'} class:me-auto={msg.sender === 'ai'} style="max-width: 80%;">
-            {msg.text}
+            {#if msg.sender === 'ai'}
+              {@html renderMarkdown(msg.text)}
+            {:else}
+              {msg.text}
+            {/if}
           </div>
         {/each}
         {#if isThinking}
@@ -74,6 +88,7 @@
         bind:value={message}
         on:keydown={(e) => { if (e.key === 'Enter') sendMessage(); }}
         disabled={isThinking}
+        bind:this={messageInput}
       />
       <button class="btn btn-success" on:click={sendMessage} disabled={isThinking}>Send</button>
     </div>

@@ -1,8 +1,8 @@
-This project is currently under active development and is a work in progress.
-
 # Lightweight AI Agent framework for SvelteKit
 
 ## Overview
+
+This entire project was built without writing a single line of code, thanks to the Gemini CLI.
 
 This project is a Proof of Concept (PoC) for an AI agent application that utilizes a Large Language Model (LLM) via a REST API and is designed to run smoothly even on low-spec client PCs.
 
