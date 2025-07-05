@@ -1,10 +1,10 @@
 <script>
   import { onMount } from 'svelte';
 
-  let message = '';
-  let messages = [];
-  let availableFunctions = [];
-  let selectedTab = 'chat'; // New variable for tab selection
+  var message = '';
+  var messages = [];
+  var availableFunctions = [];
+  var selectedTab = 'chat'; // New variable for tab selection
 
   onMount(async () => {
     try {
@@ -65,8 +65,8 @@
   <div class="tab-content flex-grow-1">
     <div class="tab-pane fade h-100 d-flex flex-column" class:show={selectedTab === 'chat'} class:active={selectedTab === 'chat'} id="chat-tab-pane" role="tabpanel" aria-labelledby="chat-tab" tabindex="0">
       <div class="card flex-grow-1 mx-auto h-100 w-50">
-        <div class="card-body d-flex flex-column flex-grow-1 min-vh-0">
-          <div class="flex-grow-1 overflow-auto flex-shrink-1">
+        <div class="card-body d-flex flex-column flex-grow-1">
+          <div class="flex-grow-1 overflow-auto flex-shrink-1" style="height: 0;">
             {#each messages as msg}
               <div class="p-2 mb-2 rounded-3 text-break" class:bg-primary={msg.sender === 'user'} class:text-white={msg.sender === 'user'} class:bg-light={msg.sender === 'ai'} class:ms-auto={msg.sender === 'user'} class:me-auto={msg.sender === 'ai'} style="max-width: 80%;">
                 {msg.text}

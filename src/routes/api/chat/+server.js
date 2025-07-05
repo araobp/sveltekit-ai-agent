@@ -94,56 +94,58 @@ const tools = [
 
 // Function to execute the tool calls
 async function callTool(toolCall) {
-  if (toolCall.function.name === 'google_web_search') {
-    // --- USER IMPLEMENTATION REQUIRED HERE ---
-    // In a real application, you would integrate a web search API here.
-    // For example, using a library like 'node-fetch' to call a search API.
-    // The 'query' argument from the LLM is toolCall.function.args.query
-    //
-    // Example (conceptual, requires actual web search API integration):
-    // const searchApiUrl = `https://api.example.com/search?q=${encodeURIComponent(toolCall.function.args.query)}`;
-    // const response = await fetch(searchApiUrl);
-    // const data = await response.json();
-    // return { search_results: data.results }; // Return relevant data to the LLM
-    // --- END USER IMPLEMENTATION REQUIRED HERE ---
+  switch (toolCall.name) {
+    case 'google_web_search':
+      // --- USER IMPLEMENTATION REQUIRED HERE ---
+      // In a real application, you would integrate a web search API here.
+      // For example, using a library like 'node-fetch' to call a search API.
+      // The 'query' argument from the LLM is toolCall.function.args.query
+      //
+      // Example (conceptual, requires actual web search API integration):
+      // const searchApiUrl = `https://api.example.com/search?q=${encodeURIComponent(toolCall.args.query)}`;
+      // const response = await fetch(searchApiUrl);
+      // const data = await response.json();
+      // return { search_results: data.results }; // Return relevant data to the LLM
+      // --- END USER IMPLEMENTATION REQUIRED HERE ---
 
-    console.log(`Executing simulated google_web_search with query: ${toolCall.function.args.query}`);
-    // Simulate a web search result for demonstration purposes
-    return {
-      search_results: `Simulated search results for "${toolCall.function.args.query}": Information about ${toolCall.function.args.query} found on Wikipedia and other sources.`
-    };
-  } else if (toolCall.function.name === 'get_current_weather') {
-    console.log(`Executing simulated get_current_weather for location: ${toolCall.function.args.location}`);
-    return {
-      weather: `The current weather in ${toolCall.function.args.location} is sunny with a temperature of 25°C.`
-    };
-  } else if (toolCall.function.name === 'send_email') {
-    console.log(`Executing simulated send_email to: ${toolCall.function.args.to}, subject: ${toolCall.function.args.subject}`);
-    return {
-      status: `Email sent successfully to ${toolCall.function.args.to}.`
-    };
-  } else if (toolCall.function.name === 'create_calendar_event') {
-    console.log(`Executing simulated create_calendar_event: ${toolCall.function.args.title} from ${toolCall.function.args.start_time} to ${toolCall.function.args.end_time} at ${toolCall.function.args.location}`);
-    return {
-      status: `Calendar event '${toolCall.function.args.title}' created successfully.`
-    };
+      console.log(`Executing simulated google_web_search with query: ${toolCall.args.query}`);
+      // Simulate a web search result for demonstration purposes
+      return {
+        search_results: `Simulated search results for "${toolCall.args.query}": Information about ${toolCall.args.query} found on Wikipedia and other sources.`
+      };
+    case 'get_current_weather':
+      console.log(`Executing simulated get_current_weather for location: ${toolCall.args.location}`);
+      return {
+        weather: `The current weather in ${toolCall.args.location} is sunny with a temperature of 25°C.`
+      };
+    case 'send_email':
+      console.log(`Executing simulated send_email to: ${toolCall.args.to}, subject: ${toolCall.args.subject}`);
+      return {
+        status: `Email sent successfully to ${toolCall.args.to}.`
+      };
+    case 'create_calendar_event':
+      console.log(`Executing simulated create_calendar_event: ${toolCall.args.title} from ${toolCall.args.start_time} to ${toolCall.args.end_time} at ${toolCall.args.location}`);
+      return {
+        status: `Calendar event '${toolCall.args.title}' created successfully.`
+      };
+    default:
+      throw new Error(`Tool ${toolCall.name} not found.`);
   }
-  throw new Error(`Tool ${toolCall.function.name} not found.`);
 }
 
 export async function POST({ request }) {
   const { message } = await request.json();
 
   try {
-    let conversationHistory = [
+    var conversationHistory = [
       {
         role: 'user',
         parts: [{ text: message }]
       }
     ];
 
-    let responseData;
-    let hasFunctionCall = true;
+    var responseData;
+    var hasFunctionCall = true;
 
     while (hasFunctionCall) {
       const geminiResponse = await fetch(
@@ -161,39 +163,50 @@ export async function POST({ request }) {
       );
 
       responseData = await geminiResponse.json();
+      console.log('Gemini API Response:', JSON.stringify(responseData, null, 2));
 
       if (responseData.candidates && responseData.candidates[0].content.parts) {
         const candidate = responseData.candidates[0].content;
 
         if (candidate.parts[0].functionCall) {
           const toolCall = candidate.parts[0].functionCall;
-          const toolOutput = await callTool(toolCall);
+          try {
+            const toolOutput = await callTool(toolCall);
 
-          conversationHistory.push({
-            role: 'model',
-            parts: [{ functionCall: toolCall }]
-          });
-          conversationHistory.push({
-            role: 'function',
-            parts: [{ functionResponse: { name: toolCall.name, response: toolOutput } }]
-          });
-          hasFunctionCall = true; // Continue loop if a function call was made
+            conversationHistory.push({
+              role: 'model',
+              parts: [{ functionCall: toolCall }]
+            });
+            conversationHistory.push({
+              role: 'function',
+              parts: [{ functionResponse: { name: toolCall.name, response: toolOutput } }]
+            });
+            hasFunctionCall = true; // Continue loop if a function call was made
+          } catch (toolError) {
+            console.error('Error executing tool:', toolError);
+            return json({ response: `Error: Failed to execute tool ${toolCall.function.name}.` }, { status: 500 });
+          }
         } else if (candidate.parts[0].text) {
           hasFunctionCall = false; // Exit loop if text response is received
         } else {
-          // Handle other types of content if necessary
+          console.warn('Unexpected content parts from Gemini:', candidate.parts);
           hasFunctionCall = false;
         }
       }
       else {
-        // No candidates or content, likely an error or end of conversation
+        console.error('No candidates or content in Gemini response:', responseData);
         hasFunctionCall = false;
       }
     }
 
     const finalResponseText = responseData.candidates[0].content.parts[0].text;
 
-    return json({ response: finalResponseText });
+    if (finalResponseText) {
+      return json({ response: finalResponseText });
+    } else {
+      console.error('Final response text is empty or undefined:', responseData);
+      return json({ response: 'Error: Received an empty or unexpected response from the AI.' }, { status: 500 });
+    }
   } catch (error) {
     console.error('Error communicating with Gemini or executing tool:', error);
     return json({ response: 'Error: Could not get response from AI or execute tool. Check your API key and network connection.' }, { status: 500 });
