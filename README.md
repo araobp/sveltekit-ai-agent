@@ -1,3 +1,5 @@
+This project is currently under active development and is a work in progress.
+
 # Lightweight AI Agent framework for SvelteKit
 
 ## Overview
