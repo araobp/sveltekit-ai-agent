@@ -48,7 +48,7 @@ const tools = [
           properties: {
             to: {
               type: 'string',
-              description: 'The recipient's email address.'
+              description: 'The recipient\'s email address.'
             },
             subject: {
               type: 'string',
@@ -64,7 +64,7 @@ const tools = [
       },
       {
         name: 'create_calendar_event',
-        description: 'Creates a new event on the user's calendar.',
+        description: 'Creates a new event on the user\'s calendar.',
         parameters: {
           type: 'object',
           properties: {
@@ -184,7 +184,8 @@ export async function POST({ request }) {
           // Handle other types of content if necessary
           hasFunctionCall = false;
         }
-      } else {
+      }
+      else {
         // No candidates or content, likely an error or end of conversation
         hasFunctionCall = false;
       }
