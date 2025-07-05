@@ -20,7 +20,7 @@ This project aims to make an AI agent application viable under these constraints
 ## Tech Stack
 
 *   **Framework:** SvelteKit
-*   **Language:** TypeScript / JavaScript
+*   **Language:** JavaScript
 *   **LLM Integration:** REST API
 
 ## Architecture
@@ -44,6 +44,10 @@ cd sveltekit-ai-agents
 
 # Install dependencies
 npm install
+
+# Set your Gemini API Key (replace with your actual key)
+export GEMINI_API_KEY="your_gemini_api_key_here"
+# For persistent setting, add the above line to your shell's profile file (~/.bashrc, ~/.zshrc, etc.)
 ```
 
 ### Starting the Development Server
