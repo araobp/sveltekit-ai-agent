@@ -1,4 +1,4 @@
-# Lightweight AI Agent framework for SvelteKit
+# SvelteKit AI Agent with Sequential Function Calling
 
 ## Overview
 
