@@ -33,7 +33,7 @@
           headers: {
             'Content-Type': 'application/json'
           },
-          body: JSON.stringify({ message: userMessage })
+          body: JSON.stringify({ message: userMessage, conversationHistory: messages })
         });
 
         if (response.ok) {

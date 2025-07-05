@@ -4,12 +4,14 @@
   var message = '';
   var messages = [];
   var chatContainer; // Declare a variable to hold the chat container element
+  var isThinking = false; // New state variable for thinking indicator
 
   async function sendMessage() {
     if (message.trim()) {
       messages = [...messages, { text: message, sender: 'user' }];
       const userMessage = message;
       message = '';
+      isThinking = true; // Set thinking to true when message is sent
 
       await tick(); // Ensure DOM is updated before scrolling
       if (chatContainer) {
@@ -23,32 +25,24 @@
           headers: {
             'Content-Type': 'application/json'
           },
-          body: JSON.stringify({ message: userMessage })
+          body: JSON.stringify({ message: userMessage, conversationHistory: messages })
         });
 
         if (response.ok) {
           const data = await response.json();
           messages = [...messages, { text: data.response, sender: 'ai' }];
-          await tick(); // Ensure DOM is updated after AI response
-          if (chatContainer) {
-            chatContainer.scrollTop = chatContainer.scrollHeight;
-            console.log('AI message added. ScrollTop:', chatContainer.scrollTop, 'ScrollHeight:', chatContainer.scrollHeight);
-          }
         } else {
           messages = [...messages, { text: 'Error: Could not get response from AI.', sender: 'ai' }];
-          await tick();
-          if (chatContainer) {
-            chatContainer.scrollTop = chatContainer.scrollHeight;
-            console.log('Error message added. ScrollTop:', chatContainer.scrollTop, 'ScrollHeight:', chatContainer.scrollHeight);
-          }
         }
       } catch (error) {
         console.error('Error sending message:', error);
         messages = [...messages, { text: 'Error: Network issue or server not reachable.', sender: 'ai' }];
-        await tick();
+      } finally {
+        isThinking = false; // Set thinking to false after response or error
+        await tick(); // Ensure DOM is updated after AI response or error
         if (chatContainer) {
           chatContainer.scrollTop = chatContainer.scrollHeight;
-          console.log('Network error message added. ScrollTop:', chatContainer.scrollTop, 'ScrollHeight:', chatContainer.scrollHeight);
+          console.log('AI message added. ScrollTop:', chatContainer.scrollTop, 'ScrollHeight:', chatContainer.scrollHeight);
         }
       }
     }
@@ -65,6 +59,11 @@
             {msg.text}
           </div>
         {/each}
+        {#if isThinking}
+          <div class="p-2 mb-2 rounded-3 text-break bg-light me-auto" style="max-width: 80%;">
+            AI is thinking...
+          </div>
+        {/if}
       </div>
     </div>
     <div class="card-footer d-flex p-3">
@@ -74,8 +73,9 @@
         placeholder="Type your message..."
         bind:value={message}
         on:keydown={(e) => { if (e.key === 'Enter') sendMessage(); }}
+        disabled={isThinking}
       />
-      <button class="btn btn-success" on:click={sendMessage}>Send</button>
+      <button class="btn btn-success" on:click={sendMessage} disabled={isThinking}>Send</button>
     </div>
   </div>
 </div>
