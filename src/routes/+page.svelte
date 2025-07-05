@@ -86,7 +86,14 @@
         class="form-control me-2"
         placeholder="Type your message..."
         bind:value={message}
-        on:keydown={(e) => { if (e.key === 'Enter') sendMessage(); }}
+        on:keydown={(e) => {
+          if (e.key === 'Enter' && !e.isComposing) {
+            if (!e.shiftKey) {
+              e.preventDefault();
+              sendMessage();
+            }
+          }
+        }}
         disabled={isThinking}
         bind:this={messageInput}
       />

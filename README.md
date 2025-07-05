@@ -58,6 +58,51 @@ npm run dev
 
 This will start the local development environment.
 
+## Example Usage
+
+```
+Input:
+Search for information about Dubai online. Then, check the weather there. Summarize the content and send it via email.
+
+Gemini API Response: {
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "functionCall": {
+              "name": "send_email",
+              "args": {
+                "to": "aaa@example.com",
+                "body": "This is the information I found about Dubai and the current weather.\n\nDubai is one of the emirates that make up the United Arab Emirates, and is a leading global city in the Middle East. It is known as a center for finance, tourism, and commerce.\n\nThe current weather in Dubai is sunny with a temperature of 25°C.",
+                "subject": "dubai"
+              }
+            }
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 588,
+    "candidatesTokenCount": 103,
+    "totalTokenCount": 821,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 588
+      }
+    ],
+    "thoughtsTokenCount": 130
+  },
+  "modelVersion": "gemini-2.5-flash",
+  "responseId": "yQ5paNa0D7HkqtsPrayt8Qc"
+}
+```
+
 ---
 
 *Note: This README was created with the assistance of the Gemini CLI.*
