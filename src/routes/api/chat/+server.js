@@ -25,6 +25,68 @@ const tools = [
           },
           required: ['query']
         }
+      },
+      {
+        name: 'get_current_weather',
+        description: 'Gets the current weather for a specified location.',
+        parameters: {
+          type: 'object',
+          properties: {
+            location: {
+              type: 'string',
+              description: 'The city and state, e.g. San Francisco, CA'
+            }
+          },
+          required: ['location']
+        }
+      },
+      {
+        name: 'send_email',
+        description: 'Sends an email to a recipient with a given subject and body.',
+        parameters: {
+          type: 'object',
+          properties: {
+            to: {
+              type: 'string',
+              description: 'The recipient's email address.'
+            },
+            subject: {
+              type: 'string',
+              description: 'The subject of the email.'
+            },
+            body: {
+              type: 'string',
+              description: 'The body content of the email.'
+            }
+          },
+          required: ['to', 'subject', 'body']
+        }
+      },
+      {
+        name: 'create_calendar_event',
+        description: 'Creates a new event on the user's calendar.',
+        parameters: {
+          type: 'object',
+          properties: {
+            title: {
+              type: 'string',
+              description: 'The title of the calendar event.'
+            },
+            start_time: {
+              type: 'string',
+              description: 'The start time of the event in ISO 8601 format (e.g., 2024-07-20T10:00:00Z)'
+            },
+            end_time: {
+              type: 'string',
+              description: 'The end time of the event in ISO 8601 format (e.g., 2024-07-20T11:00:00Z)'
+            },
+            location: {
+              type: 'string',
+              description: 'The location of the event.'
+            }
+          },
+          required: ['title', 'start_time', 'end_time']
+        }
       }
     ]
   }
@@ -49,6 +111,21 @@ async function callTool(toolCall) {
     // Simulate a web search result for demonstration purposes
     return {
       search_results: `Simulated search results for "${toolCall.function.args.query}": Information about ${toolCall.function.args.query} found on Wikipedia and other sources.`
+    };
+  } else if (toolCall.function.name === 'get_current_weather') {
+    console.log(`Executing simulated get_current_weather for location: ${toolCall.function.args.location}`);
+    return {
+      weather: `The current weather in ${toolCall.function.args.location} is sunny with a temperature of 25°C.`
+    };
+  } else if (toolCall.function.name === 'send_email') {
+    console.log(`Executing simulated send_email to: ${toolCall.function.args.to}, subject: ${toolCall.function.args.subject}`);
+    return {
+      status: `Email sent successfully to ${toolCall.function.args.to}.`
+    };
+  } else if (toolCall.function.name === 'create_calendar_event') {
+    console.log(`Executing simulated create_calendar_event: ${toolCall.function.args.title} from ${toolCall.function.args.start_time} to ${toolCall.function.args.end_time} at ${toolCall.function.args.location}`);
+    return {
+      status: `Calendar event '${toolCall.function.args.title}' created successfully.`
     };
   }
   throw new Error(`Tool ${toolCall.function.name} not found.`);
