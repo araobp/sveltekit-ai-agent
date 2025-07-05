@@ -1,4 +1,4 @@
-# SvelteKit AI Agents
+# Lightweight AI Agent framework for SvelteKit
 
 ## Overview
 
