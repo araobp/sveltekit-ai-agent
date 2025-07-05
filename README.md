@@ -61,4 +61,3 @@ This will start the local development environment.
 ---
 
 *Note: This README was created with the assistance of the Gemini CLI.*
-*Portions of this application's code were also generated with the assistance of the Gemini CLI.*
