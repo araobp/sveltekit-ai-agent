@@ -104,12 +104,21 @@ export const tools = [
           },
           required: ['url']
         }
+      },
+      {
+        name: 'get_world_news',
+        description: 'Retrieves the latest world news headlines.',
+        parameters: {
+          type: 'object',
+          properties: {}
+        }
       }
     ]
   }
 ];
 
 import { exec } from 'child_process';
+import fetch from 'node-fetch';
 
 export async function callTool(toolCall) {
   switch (toolCall.name) {
@@ -132,10 +141,53 @@ export async function callTool(toolCall) {
         search_results: `Simulated search results for "${toolCall.args.query}": Information about ${toolCall.args.query} found on Wikipedia and other sources.`
       };
     case 'get_current_weather':
-      console.log(`Executing simulated get_current_weather for location: ${toolCall.args.location}`);
-      return {
-        weather: `The current weather in ${toolCall.args.location} is sunny with a temperature of 25°C.`
-      };
+      try {
+        const location = toolCall.args.location;
+
+        // Step 1: Geocoding using OpenStreetMap Nominatim
+        const geocodingUrl = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(location)}&format=json&limit=1`;
+        const geocodingResponse = await fetch(geocodingUrl, {
+          headers: {
+            'User-Agent': 'SvelteKit-AI-Agent/1.0 (https://github.com/your-username/sveltekit-ai-agents)' // Replace with your actual app name and URL
+          }
+        });
+        const geocodingData = await geocodingResponse.json();
+
+        if (!geocodingResponse.ok || geocodingData.length === 0) {
+          throw new Error(`Could not find coordinates for ${location}`);
+        }
+
+        const { lat, lon, display_name } = geocodingData[0];
+
+        // Step 2: Get weather using Open-Meteo.com
+        const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`;
+        const weatherResponse = await fetch(weatherUrl);
+        const weatherData = await weatherResponse.json();
+
+        if (!weatherResponse.ok || !weatherData.current_weather) {
+          throw new Error(`Could not retrieve weather for ${display_name}`);
+        }
+
+        const { temperature, weathercode, windspeed, winddirection } = weatherData.current_weather;
+
+        // Basic weather code interpretation (you can expand this)
+        let weatherDescription = 'Unknown';
+        if (weathercode === 0) weatherDescription = 'Clear sky';
+        else if (weathercode > 0 && weathercode < 4) weatherDescription = 'Partly cloudy';
+        else if (weathercode >= 4 && weathercode < 10) weatherDescription = 'Fog';
+        else if (weathercode >= 10 && weathercode < 20) weatherDescription = 'Drizzle';
+        else if (weathercode >= 20 && weathercode < 30) weatherDescription = 'Rain';
+        else if (weathercode >= 30 && weathercode < 40) weatherDescription = 'Snow';
+        else if (weathercode >= 40 && weathercode < 50) weatherDescription = 'Thunderstorm';
+
+        const fullWeatherDescription = `Current weather in ${display_name}: ${weatherDescription}, Temperature: ${temperature}°C, Wind: ${windspeed} km/h (${winddirection}°).`;
+
+        console.log(`Executing get_current_weather for ${location}: ${fullWeatherDescription}`);
+        return { weather: fullWeatherDescription };
+      } catch (error) {
+        console.error('Error in get_current_weather:', error);
+        return { weather: `Failed to get weather for ${toolCall.args.location}: ${error.message}` };
+      }
     case 'send_email':
       console.log(`Executing simulated send_email to: ${toolCall.args.to}, subject: ${toolCall.args.subject}`);
       return {
@@ -177,7 +229,33 @@ export async function callTool(toolCall) {
           resolve({ status: `Opened browser to: ${toolCall.args.url}` });
         });
       });
-    default:
-      throw new Error(`Tool ${toolCall.name} not found.`);
-  }
-}
+    case 'get_world_news':
+      try {
+        const gdeltUrl = 'https://www.gdeltproject.org/data/dailyupdates/today.json'; // GDELT daily updates
+        console.log(`Fetching news from: ${gdeltUrl}`);
+        const response = await fetch(gdeltUrl);
+        console.log(`GDELT API Response Status: ${response.status}`);
+        const data = await response.json();
+        console.log('GDELT API Raw Data:', JSON.stringify(data, null, 2));
+
+        if (!response.ok || !data || !data.articles) {
+          throw new Error('Could not retrieve news from GDELT or unexpected data format.');
+        }
+
+        // Extracting headlines and URLs from the first few articles
+        const news = data.articles.slice(0, 5).map(article => ({
+          title: article.title,
+          url: article.url
+        }));
+
+        let newsSummary = 'Latest World News:\n';
+        news.forEach((item, index) => {
+          newsSummary += `${index + 1}. ${item.title} - ${item.url}\n`;
+        });
+
+        console.log('Executing get_world_news.');
+        return { news: newsSummary };
+      } catch (error) {
+        console.error('Error in get_world_news:', error);
+        return { news: `Failed to get world news: ${error.message}` };
+      }
