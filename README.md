@@ -1,6 +1,6 @@
 # SvelteKit AI Agent with Sequential Function Calling
 
-<img src="docs/Gemini_Generated_Image_t56bmpt56bmpt56b.jpg" width=400>
+<img src="docs/Gemini_Generated_Image_t56bmpt56bmpt56b.jpg" width=600>
 
 ## Overview
 
