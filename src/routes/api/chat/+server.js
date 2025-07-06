@@ -57,6 +57,11 @@ export async function POST({ request }) {
           try {
             const toolOutput = await callTool(toolCall);
 
+            // If the tool output is specifically for news and contains pre-formatted HTML, send it directly
+            if (toolCall.name === 'get_world_news' && toolOutput.news) {
+              return json({ response: toolOutput.news });
+            }
+
             currentConversation.push({
               role: 'model',
               parts: [{ functionCall: toolCall }]
