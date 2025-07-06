@@ -1,6 +1,6 @@
 # SvelteKit AI Agent with Sequential Function Calling
 
-![Gemini Generated Image](docs/Gemini_Generated_Image_t56bmpt56bmpt56b.jpg =600x)
+<img src="docs/Gemini_Generated_Image_t56bmpt56bmpt56b.jpg" width=400>
 
 ## Overview
 
