@@ -31,6 +31,10 @@ This project aims to make an AI agent application viable under these constraints
 
 This configuration ensures that all computationally intensive processing is completed on the server-side, keeping the client lightweight.
 
+## Application Flow Diagram
+
+For a detailed ASCII flowchart explaining the application's processing flow, please refer to [FLOWCHART.md](FLOWCHART.md).
+
 ## Development
 
 ### Setup
