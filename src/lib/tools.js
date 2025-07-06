@@ -90,6 +90,20 @@ export const tools = [
           },
           required: ['sound_name']
         }
+      },
+      {
+        name: 'open_browser',
+        description: 'Opens a specific URL in the default web browser on the server\'s macOS machine.',
+        parameters: {
+          type: 'object',
+          properties: {
+            url: {
+              type: 'string',
+              description: 'The URL to open (e.g., "https://www.google.com").'
+            }
+          },
+          required: ['url']
+        }
       }
     ]
   }
@@ -146,6 +160,21 @@ export async function callTool(toolCall) {
           }
           console.log(`Playing system sound: ${toolCall.args.sound_name}`);
           resolve({ status: `Played sound: ${toolCall.args.sound_name}` });
+        });
+      });
+    case 'open_browser':
+      return new Promise((resolve, reject) => {
+        exec(`open "${toolCall.args.url}"`, (error, stdout, stderr) => {
+          if (error) {
+            console.error(`Error opening browser: ${error.message}`);
+            reject({ status: `Error opening browser: ${error.message}` });
+            return;
+          }
+          if (stderr) {
+            console.error(`open stderr: ${stderr}`);
+          }
+          console.log(`Opening browser to: ${toolCall.args.url}`);
+          resolve({ status: `Opened browser to: ${toolCall.args.url}` });
         });
       });
     default:
