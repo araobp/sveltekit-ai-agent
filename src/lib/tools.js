@@ -76,10 +76,26 @@ export const tools = [
           },
           required: ['title', 'start_time', 'end_time']
         }
+      },
+      {
+        name: 'play_system_sound',
+        description: 'Plays a system sound on the server\'s macOS machine.',
+        parameters: {
+          type: 'object',
+          properties: {
+            sound_name: {
+              type: 'string',
+              description: 'The name of the system sound to play (e.g., "Basso", "Frog", "Purr").'
+            }
+          },
+          required: ['sound_name']
+        }
       }
     ]
   }
 ];
+
+import { exec } from 'child_process';
 
 export async function callTool(toolCall) {
   switch (toolCall.name) {
@@ -116,6 +132,22 @@ export async function callTool(toolCall) {
       return {
         status: `Calendar event '${toolCall.args.title}' created successfully.`
       };
+    case 'play_system_sound':
+      const soundPath = `/System/Library/Sounds/${toolCall.args.sound_name}.aiff`;
+      return new Promise((resolve, reject) => {
+        exec(`afplay "${soundPath}"`, (error, stdout, stderr) => {
+          if (error) {
+            console.error(`Error playing sound: ${error.message}`);
+            reject({ status: `Error playing sound: ${error.message}` });
+            return;
+          }
+          if (stderr) {
+            console.error(`afplay stderr: ${stderr}`);
+          }
+          console.log(`Playing system sound: ${toolCall.args.sound_name}`);
+          resolve({ status: `Played sound: ${toolCall.args.sound_name}` });
+        });
+      });
     default:
       throw new Error(`Tool ${toolCall.name} not found.`);
   }
