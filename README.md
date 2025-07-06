@@ -1,5 +1,7 @@
 # SvelteKit AI Agent with Sequential Function Calling
 
+![Gemini Generated Image](docs/Gemini_Generated_Image_t56bmpt56bmpt56b.jpg =600x)
+
 ## Overview
 
 This entire project was built without writing a single line of code, thanks to the Gemini CLI.
